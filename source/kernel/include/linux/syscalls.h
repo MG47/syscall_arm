@@ -68,7 +68,7 @@ struct sigaltstack;
 union bpf_attr;
 
 //MG47
-struct process_info;
+struct prcs_info;
 
 #include <linux/types.h>
 #include <linux/aio_abi.h>
@@ -893,6 +893,6 @@ asmlinkage long sys_membarrier(int cmd, int flags);
 asmlinkage long sys_mlock2(unsigned long start, size_t len, int flags);
 
 //MG47
-asmlinkage long sys_pinfo(struct process_info __user *pf);
+asmlinkage long sys_pinfo(struct prcs_info __user *pf, pid_t pid);
 
 #endif

@@ -3,6 +3,7 @@
 * syscall 'pinfo'
 */
 
+#include <stdlib.h>
 #include <stdio.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -10,59 +11,54 @@
 #include <string.h>
 
 #ifndef SYSCALL_THROUGH_LIBC
-extern int __pinfo(int pif);
-#endif
 
-struct process_info {
-	pid_t pid; 	// process ID
-	pid_t tgid; 	// thread group id
-	int prio; 	// priority
-	char *parent; 	// name of parent task
-	char *name; 	// name of task
-	unsigned long nvcsw; 		// context switch count
-	unsigned long long start_time; 	// start time in ns
-};
-
-#ifdef SYSCALL_THROUGH_LIBC
-int pinfo_call(int pif)
+int pinfo(struct prcs_info *pif, pid_t pid)
 {
-	return pinfo(pif);
-}
-#else
-int pinfo_call(int pif)
-{
-	__asm("mov x8, #285;"
-	" svc #0");
+	__asm("mov x8, #285;" //x8 holds syscall no
+		  " svc #0;" 			// supervisor call
+//		  "ret"); 				// return with X0 holding the errno
+	);
 
-	return 0;
-	//	return __pinfo(pif);
+		printf("ret was useless \n");
+		return 0; //placeholder return
 }
 #endif
 
 int main()
 {
-//	struct pinfo *pif;
-	int pif = 0;
 	int ret;
+	pid_t pid;
 
 	printf("System Call Demo \n");
 	printf("syscall pinfo() \n");
 
-	ret = pinfo_call(pif);
+	struct prcs_info pif =
+	{
+		.prio = -1,
+		.state = -1,	/* -1 unrunnable, 0 runnable, >0 stopped */
+		.cpu = 0,
+		.nvcsw = 0,
+		.start_time = 0,
+	};
+
+	//TODO: parse /proc/<pid> to select a process
+//	pid = getpid(); // current process
+//	pid = 1; // for init process
+	pid = -1; // to test errno
+
+	ret = pinfo(&pif, pid);
 	if (ret < 0) {
-//		printf("Error: %s\n", strerror(errno));
+		printf("System call error no: %d\n", ret);
 		return -1;
 	}
 
 	printf("Process info : \n");
-#if 0
-	printf("Process ID : %d: \n", pif->pid);
-	printf("Process tgid : %d\n", pif->tgid);
-	printf("Process priority : %d\n", pif->prio);
-	printf("Process parent : %s\n", pif->parent);
-	printf("Context switch count : %d\n", pif->nvcsw);
-	printf("Process start time (ns) : %llu\n", pif->start_time);
-#endif
+	printf("Process priority : %d\n", pif.prio);
+	printf("Process state : %ld\n", pif.state);
+	printf("Current CPU : %d\n", pif.cpu);
+	printf("Context switch count : %lu\n", pif.nvcsw);
+	printf("Process start time (ns) : %llu\n", pif.start_time);
+
 	printf("================= \n\n"); 
     return 0;
 }

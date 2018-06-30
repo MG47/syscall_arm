@@ -2606,22 +2606,46 @@ COMPAT_SYSCALL_DEFINE1(sysinfo, struct compat_sysinfo __user *, info)
 }
 #endif /* CONFIG_COMPAT */
 
-
 //MG47
-struct process_info {
-	pid_t pid; 	// process ID
-	pid_t tgid; 	// thread group id
-	int prio; 	// priority
-	char *parent; 	// name of parent task
-	char *name; 	// name of task
+struct prcs_info {
+	int prio; 				// priority
+	long state;			// -1 unrunnable, 0 runnable, >0 stopped
+	unsigned int cpu; 		// Current CPU
 	unsigned long nvcsw; 		// context switch count
 	unsigned long long start_time; 	// start time in ns
 };
 
-SYSCALL_DEFINE1(pinfo, struct process_info __user *, pf)
+SYSCALL_DEFINE2(pinfo, struct prcs_info  __user *, pf, pid_t, pid)
 {
+	unsigned long ret;
+	struct prcs_info pif;
+	struct task_struct *task;
 
-	printk(KERN_ALERT "pinfo invoked by user\n");
+	printk(KERN_ALERT "pinfo(): invoked by user\n");
+
+	if (!pf || pid < 0) {
+		printk(KERN_ALERT "pinfo(): Invalid argument\n");
+		return -EINVAL;
+	}
+
+	/* get task_struct from pid */
+	task = pid_task(find_get_pid(pid), PIDTYPE_PID);
+	if (!task) {
+		printk(KERN_ALERT "pinfo(): Invalid pid\n");
+		return -EINVAL;
+	}
+
+	pif.prio = task->prio;
+	pif.state = task->state;
+	pif.cpu = task->cpu;
+	pif.nvcsw = task->nvcsw;
+	pif.start_time = task->start_time;
+
+	ret = copy_to_user(pf, &pif,  sizeof(struct prcs_info));
+	if (ret) {
+		printk(KERN_ALERT "pinfo(): copy_to_user failed\n");
+		return -EINVAL;
+	}
 
 	return 0;
 }
