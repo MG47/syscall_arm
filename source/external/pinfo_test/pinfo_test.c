@@ -11,16 +11,16 @@
 #include <string.h>
 
 #ifndef SYSCALL_THROUGH_LIBC
-
 int pinfo(struct prcs_info *pif, pid_t pid)
 {
-	__asm("mov x8, #285;" //x8 holds syscall no
-		  " svc #0;" 			// supervisor call
-//		  "ret"); 				// return with X0 holding the errno
-	);
+	int err;
+	err = 0;
 
-		printf("ret was useless \n");
-		return 0; //placeholder return
+	asm("MOV x8, #285;" //x8 holds syscall no
+		  " SVC #0;" // supervisor call
+		  "MOV %[result], x0" : [result] "=r" (err) // copy return code to err variable
+	);
+	return err;
 }
 #endif
 
@@ -48,7 +48,7 @@ int main()
 
 	ret = pinfo(&pif, pid);
 	if (ret < 0) {
-		printf("System call error no: %d\n", ret);
+		printf("System call error %s\n", strerror(-ret));
 		return -1;
 	}
 
