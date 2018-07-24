@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <string.h>
 
+/* To call pinfo without libc wrapper */
 #ifndef SYSCALL_THROUGH_LIBC
 int pinfo(struct prcs_info *pif, pid_t pid)
 {
@@ -17,10 +18,10 @@ int pinfo(struct prcs_info *pif, pid_t pid)
 	err = 0;
 
 	asm("MOV x8, #285;" //x8 holds syscall no
-		  " SVC #0;" // supervisor call
-		  "MOV %[result], x0" : [result] "=r" (err) // copy return code to err variable
+		  " SVC #0;" 			// supervisor call
+		  "MOV %[result], x0" : [result] "=r" (err) 		// copy return code to err variable
 	);
-	return err;
+	return err; 
 }
 #endif
 
@@ -36,19 +37,19 @@ int main()
 	{
 		.prio = -1,
 		.state = -1,	/* -1 unrunnable, 0 runnable, >0 stopped */
-		.cpu = 0,
+		.cpu = 0, 	 	
 		.nvcsw = 0,
 		.start_time = 0,
 	};
 
 	//TODO: parse /proc/<pid> to select a process
 //	pid = getpid(); // current process
-//	pid = 1; // for init process
-	pid = -1; // to test errno
+	pid = 1; // for init process
+//	pid = -1; // to test errno
 
 	ret = pinfo(&pif, pid);
 	if (ret < 0) {
-		printf("System call error %s\n", strerror(-ret));
+		printf("System call error : %s\n", strerror(-ret));
 		return -1;
 	}
 

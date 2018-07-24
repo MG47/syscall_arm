@@ -278,7 +278,9 @@ struct prcs_info {
 	unsigned long long start_time; 	// start time in ns
 };
 
-int pinfo(struct prcs_info *pif, pid_t pid) __attribute__((weak));
+//TODO fix weak
+//int pinfo(struct prcs_info *pif, pid_t pid) __attribute__((weak));
+int pinfo(struct prcs_info *pif, pid_t pid) ;
 
 #if defined(__BIONIC_FORTIFY)
 
@@ -304,9 +306,9 @@ int pinfo(struct prcs_info *pif, pid_t pid) __attribute__((weak));
                 "'" #what "' bytes overflows the given object") \
     __errorattr("'" #what "' bytes overflows the given object")
 
-__BIONIC_ERROR_FUNCTION_VISIBILITY
-char* getcwd(char* buf, size_t size) __overloadable
-        __error_if_overflows_objectsize(size, __bos(buf));
+    __BIONIC_ERROR_FUNCTION_VISIBILITY
+    char *getcwd(char *buf, size_t size) __overloadable
+    __error_if_overflows_objectsize(size, __bos(buf));
 
 #if __ANDROID_API__ >= __ANDROID_API_N__
 __BIONIC_FORTIFY_INLINE
@@ -516,7 +518,7 @@ ssize_t readlinkat(int dirfd, const char* path,
 #undef __error_if_overflows_ssizet
 #else /* defined(__clang__) */
 
-char* __getcwd_real(char*, size_t) __RENAME(getcwd);
+    char *__getcwd_real(char *, size_t) __RENAME(getcwd);
 ssize_t __read_real(int, void*, size_t) __RENAME(read);
 ssize_t __write_real(int, const void*, size_t) __RENAME(write);
 ssize_t __readlink_real(const char*, char*, size_t) __RENAME(readlink);

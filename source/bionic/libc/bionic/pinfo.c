@@ -28,11 +28,12 @@
 
 #include <unistd.h>
 
+//MG47
+extern int __pinfo();
 int pinfo(struct prcs_info *pif, pid_t pid)
 {
-	if (!pif || !pid)
+	/* No need to make syscall if arguments are wrong */
+	if (!pif || pid < 0)
 			return -EINVAL;
-
-//	return __pinfo(pif);
-	return 0;
+	return __pinfo(pif);
 }
