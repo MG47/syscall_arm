@@ -48,9 +48,9 @@
 
 __BEGIN_DECLS
 
-#define STDIN_FILENO	0
-#define STDOUT_FILENO	1
-#define STDERR_FILENO	2
+#define STDIN_FILENO    0
+#define STDOUT_FILENO   1
+#define STDERR_FILENO   2
 
 #define F_OK 0
 #define X_OK 1
@@ -271,16 +271,14 @@ int setdomainname(const char*, size_t) __INTRODUCED_IN(26);
 
 //MG47
 struct prcs_info {
-	int prio; 				// priority
-	long state;			// -1 unrunnable, 0 runnable, >0 stopped 
-	unsigned int cpu; 		// Current CPU
-	unsigned long nvcsw; 		// context switch count
-	unsigned long long start_time; 	// start time in ns
+    int prio;               // priority
+    long state;         // -1 unrunnable, 0 runnable, >0 stopped 
+    unsigned int cpu;       // Current CPU
+    unsigned long nvcsw;        // context switch count
+    unsigned long long start_time;  // start time in ns
 };
 
-//TODO fix weak
-//int pinfo(struct prcs_info *pif, pid_t pid) __attribute__((weak));
-int pinfo(struct prcs_info *pif, pid_t pid) ;
+int pinfo(struct prcs_info *pif, pid_t pid) __attribute__((weak));
 
 #if defined(__BIONIC_FORTIFY)
 

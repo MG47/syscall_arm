@@ -2,7 +2,7 @@
 
 #include <private/bionic_asm.h>
 
-ENTRY(__pinfo)
+ENTRY(__pinfo_asm)
     mov     x8, __NR_pinfo
     svc     #0
 
@@ -11,5 +11,5 @@ ENTRY(__pinfo)
     b.hi    __set_errno_internal
 
     ret
-END(__pinfo)
-.hidden __pinfo
+END(__pinfo_asm)
+.hidden __pinfo_asm
