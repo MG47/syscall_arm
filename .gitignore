@@ -1,4 +1,6 @@
+info
 out
 *.vscode
 core*
 debug/*
+tags
